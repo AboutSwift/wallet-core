@@ -6,6 +6,7 @@
 
 #include "../PrivateKey.h"
 #include "../PublicKey.h"
+#include "../HexCoding.h"
 
 #include <TrezorCrypto/ecdsa.h>
 #include <TrezorCrypto/rand.h>
@@ -94,6 +95,11 @@ struct TWPublicKey *_Nonnull TWPrivateKeyGetPublicKeyEd25519Blake2b(struct TWPri
 
 struct TWPublicKey *_Nonnull TWPrivateKeyGetPublicKeyCurve25519(struct TWPrivateKey *_Nonnull pk) {
     return new TWPublicKey{pk->impl.getPublicKey(TWPublicKeyTypeCURVE25519)};
+}
+
+TWString *_Nonnull TWPrivateKeyDescription(struct TWPrivateKey *_Nonnull pk) {
+    const auto string = TW::hex(pk->impl.bytes);
+    return TWStringCreateWithUTF8Bytes(string.c_str());
 }
 
 TWData *TWPrivateKeySign(struct TWPrivateKey *_Nonnull pk, TWData *_Nonnull digest, enum TWCurve curve) {

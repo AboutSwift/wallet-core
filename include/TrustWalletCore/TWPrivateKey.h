@@ -56,6 +56,9 @@ struct TWPublicKey *_Nonnull TWPrivateKeyGetPublicKeyEd25519Blake2b(struct TWPri
 TW_EXPORT_METHOD
 struct TWPublicKey *_Nonnull TWPrivateKeyGetPublicKeyCurve25519(struct TWPrivateKey *_Nonnull pk);
 
+TW_EXPORT_PROPERTY
+TWString *_Nonnull TWPrivateKeyDescription(struct TWPrivateKey *_Nonnull pk);
+
 /// Signs a digest using ECDSA and given curve.
 TW_EXPORT_METHOD
 TWData *_Nullable TWPrivateKeySign(struct TWPrivateKey *_Nonnull pk, TWData *_Nonnull digest, enum TWCurve curve);
