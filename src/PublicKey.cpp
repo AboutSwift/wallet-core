@@ -39,12 +39,12 @@ PublicKey PublicKey::extended() const {
     std::array<uint8_t, secp256k1ExtendedSize> newBytes;
     switch (type) {
     case TWPublicKeyTypeSECP256k1:
-        ecdsa_uncompress_pubkey(&secp256k1, bytes.data(), newBytes.data());
+        go_ecdsa_uncompress_pubkey(&secp256k1, bytes.data(), newBytes.data());
         return PublicKey(newBytes, TWPublicKeyTypeSECP256k1Extended);
     case TWPublicKeyTypeSECP256k1Extended:
         return *this;
     case TWPublicKeyTypeNIST256p1:
-        ecdsa_uncompress_pubkey(&nist256p1, bytes.data(), newBytes.data());
+        go_ecdsa_uncompress_pubkey(&nist256p1, bytes.data(), newBytes.data());
         return PublicKey(newBytes, TWPublicKeyTypeNIST256p1Extended);
     case TWPublicKeyTypeNIST256p1Extended:
         return *this;
@@ -59,10 +59,10 @@ bool PublicKey::verify(const Data& signature, const Data& message) const {
     switch (type) {
     case TWPublicKeyTypeSECP256k1:
     case TWPublicKeyTypeSECP256k1Extended:
-        return ecdsa_verify_digest(&secp256k1, bytes.data(), signature.data(), message.data()) == 0;
+        return go_ecdsa_verify_digest(&secp256k1, bytes.data(), signature.data(), message.data()) == 0;
     case TWPublicKeyTypeNIST256p1:
     case TWPublicKeyTypeNIST256p1Extended:
-        return ecdsa_verify_digest(&nist256p1, bytes.data(), signature.data(), message.data()) == 0;
+        return go_ecdsa_verify_digest(&nist256p1, bytes.data(), signature.data(), message.data()) == 0;
     case TWPublicKeyTypeED25519:
         return ed25519_sign_open(message.data(), message.size(), bytes.data(), signature.data()) == 0;
     case TWPublicKeyTypeED25519Blake2b:
@@ -88,7 +88,7 @@ bool PublicKey::verifySchnorr(const Data& signature, const Data& message) const 
     switch (type) {
     case TWPublicKeyTypeSECP256k1:
     case TWPublicKeyTypeSECP256k1Extended:
-        return zil_schnorr_verify(&secp256k1, bytes.data(), signature.data(), message.data(), static_cast<uint32_t>(message.size())) == 0;
+        return go_zil_schnorr_verify(&secp256k1, bytes.data(), signature.data(), message.data(), static_cast<uint32_t>(message.size())) == 0;
     case TWPublicKeyTypeNIST256p1:
     case TWPublicKeyTypeNIST256p1Extended:
         return false;

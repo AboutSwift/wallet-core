@@ -76,7 +76,7 @@ struct TWPublicKey *_Nullable TWPublicKeyRecover(TWData *_Nonnull signature, TWD
         v -= 27;
     }
     std::array<uint8_t, 65> result;
-    if (ecdsa_recover_pub_from_sig(&secp256k1, result.data(), signatureBytes, TWDataBytes(message), v) != 0) {
+    if (go_ecdsa_recover_pub_from_sig(&secp256k1, result.data(), signatureBytes, TWDataBytes(message), v) != 0) {
         return nullptr;
     }
     return new TWPublicKey{ PublicKey(result, TWPublicKeyTypeSECP256k1Extended) };

@@ -269,7 +269,7 @@ int hdnode_private_ckd(HDNode *inout, uint32_t i)
 	return 1;
 }
 
-static void scalar_multiply8(const uint8_t *src, int bytes, uint8_t *dst)
+static void go_scalar_multiply8(const uint8_t *src, int bytes, uint8_t *dst)
 {
 	uint8_t prev_acc = 0;
 	for (int i = 0; i < bytes; i++) {
@@ -326,7 +326,7 @@ int hdnode_private_ckd_cardano(HDNode *inout, uint32_t index)
 	memset(zl8, 0, 32);
 
 	/* get 8 * Zl */
-	scalar_multiply8(z, 28, zl8);
+	go_scalar_multiply8(z, 28, zl8);
 	/* Kl = 8*Zl + parent(K)l */
 	scalar_add_256bits(zl8, priv_key, res_key);
 
@@ -400,9 +400,9 @@ int hdnode_public_ckd_cp(const ecdsa_curve *curve, const curve_point *parent, co
 		hmac_sha512(parent_chain_code, 32, data, sizeof(data), I);
 		bn_read_be(I, &c);
 		if (bn_is_less(&c, &curve->order)) { // < order
-			scalar_multiply(curve, &c, child); // b = c * G
-			point_add(curve, parent, child);   // b = a + b
-			if (!point_is_infinity(child)) {
+			go_scalar_multiply(curve, &c, child); // b = c * G
+			go_point_add(curve, parent, child);   // b = a + b
+			if (!go_point_is_infinity(child)) {
 				if (child_chain_code) {
 					memcpy(child_chain_code, I + 32, 32);
 				}
@@ -424,7 +424,7 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 {
 	curve_point parent, child;
 
-	if (!ecdsa_read_pubkey(inout->curve->params, inout->public_key, &parent)) {
+	if (!go_ecdsa_read_pubkey(inout->curve->params, inout->public_key, &parent)) {
 		return 0;
 	}
 	if (!hdnode_public_ckd_cp(inout->curve->params, &parent, inout->chain_code, i, &child, inout->chain_code)) {
@@ -454,10 +454,10 @@ void hdnode_public_ckd_address_optimized(const curve_point *pub, const uint8_t *
 
 	switch (addrformat) {
 		case 1: // Segwit-in-P2SH
-			ecdsa_get_address_segwit_p2sh(child_pubkey, version, hasher_pubkey, hasher_base58, addr, addrsize);
+			go_ecdsa_get_address_segwit_p2sh(child_pubkey, version, hasher_pubkey, hasher_base58, addr, addrsize);
 			break;
 		default: // normal address
-			ecdsa_get_address(child_pubkey, version, hasher_pubkey, hasher_base58, addr, addrsize);
+			go_ecdsa_get_address(child_pubkey, version, hasher_pubkey, hasher_base58, addr, addrsize);
 			break;
 	}
 }
@@ -465,13 +465,13 @@ void hdnode_public_ckd_address_optimized(const curve_point *pub, const uint8_t *
 void hdnode_get_address_raw(HDNode *node, uint32_t version, uint8_t *addr_raw)
 {
 	hdnode_fill_public_key(node);
-	ecdsa_get_address_raw(node->public_key, version, node->curve->hasher_pubkey, addr_raw);
+	go_ecdsa_get_address_raw(node->public_key, version, node->curve->hasher_pubkey, addr_raw);
 }
 
 void hdnode_get_address(HDNode *node, uint32_t version, char *addr, int addrsize)
 {
 	hdnode_fill_public_key(node);
-	ecdsa_get_address(node->public_key, version, node->curve->hasher_pubkey, node->curve->hasher_base58, addr, addrsize);
+	go_ecdsa_get_address(node->public_key, version, node->curve->hasher_pubkey, node->curve->hasher_base58, addr, addrsize);
 }
 
 void hdnode_fill_public_key(HDNode *node)
@@ -481,7 +481,7 @@ void hdnode_fill_public_key(HDNode *node)
 
 #if USE_BIP32_25519_CURVES
 	if (node->curve->params) {
-		ecdsa_get_public_key33(node->curve->params, node->private_key, node->public_key);
+		go_ecdsa_get_public_key33(node->curve->params, node->private_key, node->public_key);
 	} else {
 		node->public_key[0] = 1;
 		if (node->curve == &ed25519_info) {
@@ -500,7 +500,7 @@ void hdnode_fill_public_key(HDNode *node)
 	}
 #else
 
-	ecdsa_get_public_key33(node->curve->params, node->private_key, node->public_key);
+	go_ecdsa_get_public_key33(node->curve->params, node->private_key, node->public_key);
 #endif
 }
 
@@ -510,7 +510,7 @@ int hdnode_get_ethereum_pubkeyhash(const HDNode *node, uint8_t *pubkeyhash)
 	SHA3_CTX ctx;
 
 	/* get uncompressed public key */
-	ecdsa_get_public_key65(node->curve->params, node->private_key, buf);
+	go_ecdsa_get_public_key65(node->curve->params, node->private_key, buf);
 
 	/* compute sha3 of x and y coordinate without 04 prefix */
 	sha3_256_Init(&ctx);
@@ -620,7 +620,7 @@ int hdnode_nem_decrypt(const HDNode *node, const ed25519_public_key public_key, 
 int hdnode_sign(HDNode *node, const uint8_t *msg, uint32_t msg_len, HasherType hasher_sign, uint8_t *sig, uint8_t *pby, int (*is_canonical)(uint8_t by, uint8_t sig[64]))
 {
 	if (node->curve->params) {
-		return ecdsa_sign(node->curve->params, hasher_sign, node->private_key, msg, msg_len, sig, pby, is_canonical);
+		return go_ecdsa_sign(node->curve->params, hasher_sign, node->private_key, msg, msg_len, sig, pby, is_canonical);
         } else {
             hdnode_fill_public_key(node);
             if (node->curve == &ed25519_info) {
@@ -647,7 +647,7 @@ int hdnode_sign(HDNode *node, const uint8_t *msg, uint32_t msg_len, HasherType h
 int hdnode_sign_digest(HDNode *node, const uint8_t *digest, uint8_t *sig, uint8_t *pby, int (*is_canonical)(uint8_t by, uint8_t sig[64]))
 {
 	if (node->curve->params) {
-		return ecdsa_sign_digest(node->curve->params, node->private_key, digest, sig, pby, is_canonical);
+		return go_ecdsa_sign_digest(node->curve->params, node->private_key, digest, sig, pby, is_canonical);
 	} else {
 		return hdnode_sign(node, digest, 32, 0, sig, pby, is_canonical);
 	}
@@ -657,7 +657,7 @@ int hdnode_get_shared_key(const HDNode *node, const uint8_t *peer_public_key, ui
 {
 	// Use elliptic curve Diffie-Helman to compute shared session key
 	if (node->curve->params) {
-		if (ecdh_multiply(node->curve->params, node->private_key, peer_public_key, session_key) != 0) {
+		if (go_ecdh_multiply(node->curve->params, node->private_key, peer_public_key, session_key) != 0) {
 			return 1;
 		}
 		*result_size = 65;

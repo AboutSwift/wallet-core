@@ -64,19 +64,19 @@ PublicKey PrivateKey::getPublicKey(TWPublicKeyType type) const {
     switch (type) {
     case TWPublicKeyTypeSECP256k1:
         result.resize(PublicKey::secp256k1Size);
-        ecdsa_get_public_key33(&secp256k1, bytes.data(), result.data());
+        go_ecdsa_get_public_key33(&secp256k1, bytes.data(), result.data());
         break;
     case TWPublicKeyTypeSECP256k1Extended:
         result.resize(PublicKey::secp256k1ExtendedSize);
-        ecdsa_get_public_key65(&secp256k1, bytes.data(), result.data());
+        go_ecdsa_get_public_key65(&secp256k1, bytes.data(), result.data());
         break;
     case TWPublicKeyTypeNIST256p1:
         result.resize(PublicKey::secp256k1Size);
-        ecdsa_get_public_key33(&nist256p1, bytes.data(), result.data());
+        go_ecdsa_get_public_key33(&nist256p1, bytes.data(), result.data());
         break;
     case TWPublicKeyTypeNIST256p1Extended:
         result.resize(PublicKey::secp256k1ExtendedSize);
-        ecdsa_get_public_key65(&nist256p1, bytes.data(), result.data());
+        go_ecdsa_get_public_key65(&nist256p1, bytes.data(), result.data());
         break;
     case TWPublicKeyTypeED25519:
         result.resize(PublicKey::ed25519Size);
@@ -101,7 +101,7 @@ Data PrivateKey::sign(const Data& digest, TWCurve curve) const {
     switch (curve) {
     case TWCurveSECP256k1: {
         result.resize(65);
-        success = ecdsa_sign_digest(&secp256k1, bytes.data(), digest.data(), result.data(),
+        success = go_ecdsa_sign_digest(&secp256k1, bytes.data(), digest.data(), result.data(),
                                     result.data() + 64, nullptr) == 0;
     } break;
     case TWCurveED25519: {
@@ -126,7 +126,7 @@ Data PrivateKey::sign(const Data& digest, TWCurve curve) const {
     } break;
     case TWCurveNIST256p1: {
         result.resize(65);
-        success = ecdsa_sign_digest(&nist256p1, bytes.data(), digest.data(), result.data(),
+        success = go_ecdsa_sign_digest(&nist256p1, bytes.data(), digest.data(), result.data(),
                                     result.data() + 64, nullptr) == 0;
     } break;
     }
@@ -143,7 +143,7 @@ Data PrivateKey::sign(const Data& digest, TWCurve curve, int(*canonicalChecker)(
     switch (curve) {
     case TWCurveSECP256k1: {
         result.resize(65);
-        success = ecdsa_sign_digest(&secp256k1, bytes.data(), digest.data(), result.data() + 1,
+        success = go_ecdsa_sign_digest(&secp256k1, bytes.data(), digest.data(), result.data() + 1,
                                     result.data(), canonicalChecker) == 0;
     } break;
     case TWCurveED25519: // not supported
@@ -152,7 +152,7 @@ Data PrivateKey::sign(const Data& digest, TWCurve curve, int(*canonicalChecker)(
         break;
     case TWCurveNIST256p1: {
         result.resize(65);
-        success = ecdsa_sign_digest(&nist256p1, bytes.data(), digest.data(), result.data() + 1,
+        success = go_ecdsa_sign_digest(&nist256p1, bytes.data(), digest.data(), result.data() + 1,
                                     result.data(), canonicalChecker) == 0;
     } break;
     }
@@ -169,13 +169,13 @@ Data PrivateKey::sign(const Data& digest, TWCurve curve, int(*canonicalChecker)(
 Data PrivateKey::signAsDER(const Data& digest, TWCurve curve) const {
     Data sig(64);
     bool success =
-        ecdsa_sign_digest(&secp256k1, bytes.data(), digest.data(), sig.data(), nullptr, nullptr) == 0;
+        go_ecdsa_sign_digest(&secp256k1, bytes.data(), digest.data(), sig.data(), nullptr, nullptr) == 0;
     if (!success) {
         return {};
     }
 
     std::array<uint8_t, 72> resultBytes;
-    size_t size = ecdsa_sig_to_der(sig.data(), resultBytes.data());
+    size_t size = go_ecdsa_sig_to_der(sig.data(), resultBytes.data());
 
     auto result = Data{};
     std::copy(resultBytes.begin(), resultBytes.begin() + size, std::back_inserter(result));
@@ -187,7 +187,7 @@ Data PrivateKey::signSchnorr(const Data& message, TWCurve curve) const {
     Data sig(64);
     switch (curve) {
     case TWCurveSECP256k1: {
-        success = zil_schnorr_sign(&secp256k1, bytes.data(), message.data(), static_cast<uint32_t>(message.size()), sig.data()) == 0;
+        success = go_zil_schnorr_sign(&secp256k1, bytes.data(), message.data(), static_cast<uint32_t>(message.size()), sig.data()) == 0;
     } break;
 
     case TWCurveNIST256p1:

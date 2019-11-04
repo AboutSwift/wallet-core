@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
 			bn_zero(&a);
 			a.val[(4*i) / 30] = ((uint32_t) 2*j+1) << ((4*i) % 30);
 			bn_normalize(&a);
-			point_multiply(curve, &a, &curve->G, &checkresult);
-			assert(point_is_equal(&checkresult, &ng));
+			go_point_multiply(curve, &a, &curve->G, &checkresult);
+			assert(go_point_is_equal(&checkresult, &ng));
 #endif
 			printf("\t\t/* %2d*16^%d*G: */\n\t\t{{{", 2*j + 1, i);
 			// print x coordinate
@@ -58,9 +58,9 @@ int main(int argc, char **argv) {
 				printf("}}}\n\t},\n");
 			} else {
 				printf("}}},\n");
-				point_add(curve, &pow2ig, &ng);
+				go_point_add(curve, &pow2ig, &ng);
 			}
-			point_add(curve, &pow2ig, &ng);
+			go_point_add(curve, &pow2ig, &ng);
 		}
 		pow2ig = ng;
 	}

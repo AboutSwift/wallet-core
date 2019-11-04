@@ -52,7 +52,7 @@ bool Address::isValid(const std::string& addr, const std::string& hrp) {
 
 Address::Address(std::string hrp, const PublicKey& publicKey) : hrp(std::move(hrp)), keyHash() {
     keyHash.resize(20);
-    ecdsa_get_pubkeyhash(publicKey.compressed().bytes.data(), HASHER_SHA2_RIPEMD, keyHash.data());
+    go_ecdsa_get_pubkeyhash(publicKey.compressed().bytes.data(), HASHER_SHA2_RIPEMD, keyHash.data());
 }
 
 std::pair<Address, bool> Address::decode(const std::string& addr) {

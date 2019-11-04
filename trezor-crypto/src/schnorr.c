@@ -26,7 +26,7 @@
 static void calc_r(const curve_point *Q, const uint8_t pub_key[33],
                    const uint8_t *msg, const uint32_t msg_len, bignum256 *r) {
   uint8_t Q_compress[33];
-  compress_coords(Q, Q_compress);
+  go_compress_coords(Q, Q_compress);
 
   SHA256_CTX ctx;
   uint8_t digest[SHA256_DIGEST_LENGTH];
@@ -52,10 +52,10 @@ int schnorr_sign(const ecdsa_curve *curve, const uint8_t *priv_key,
   bignum256 r_kpriv_result;
 
   bn_read_be(priv_key, &private_key_scalar);
-  ecdsa_get_public_key33(curve, priv_key, pub_key);
+  go_ecdsa_get_public_key33(curve, priv_key, pub_key);
 
   // Compute commitment Q = kG
-  point_multiply(curve, k, &curve->G, &Q);
+  go_point_multiply(curve, k, &curve->G, &Q);
 
   // Compute challenge r = H(Q, kpub, m)
   calc_r(&Q, pub_key, msg, msg_len, &r_temp);
@@ -113,14 +113,14 @@ int schnorr_verify(const ecdsa_curve *curve, const uint8_t *pub_key,
   if (bn_is_equal(&curve->order, &r_temp)) return 6;
   if (bn_is_equal(&curve->order, &s_temp)) return 7;
 
-  if (!ecdsa_read_pubkey(curve, pub_key, &pub_key_point)) {
+  if (!go_ecdsa_read_pubkey(curve, pub_key, &pub_key_point)) {
     return 8;
   }
 
   // Compute Q = sG + r*kpub
-  point_multiply(curve, &s_temp, &curve->G, &sG);
-  point_multiply(curve, &r_temp, &pub_key_point, &Q);
-  point_add(curve, &sG, &Q);
+  go_point_multiply(curve, &s_temp, &curve->G, &sG);
+  go_point_multiply(curve, &r_temp, &pub_key_point, &Q);
+  go_point_add(curve, &sG, &Q);
 
   // Compute r' = H(Q, kpub, m)
   calc_r(&Q, pub_key, msg, msg_len, &r_computed);

@@ -74,7 +74,7 @@ CashAddress::CashAddress(const PublicKey& publicKey) {
     }
     std::array<uint8_t, 21> payload;
     payload[0] = 0;
-    ecdsa_get_pubkeyhash(publicKey.bytes.data(), HASHER_SHA2_RIPEMD, payload.data() + 1);
+    go_ecdsa_get_pubkeyhash(publicKey.bytes.data(), HASHER_SHA2_RIPEMD, payload.data() + 1);
 
     size_t outlen = 0;
     auto success = cash_addr_to_data(bytes.data(), &outlen, payload.data(), 21) != 0;

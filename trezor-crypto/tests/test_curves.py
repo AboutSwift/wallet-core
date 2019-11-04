@@ -315,33 +315,33 @@ def from_JACOBIAN(p):
     return (bn2int(p[0]), bn2int(p[1]), bn2int(p[2]))
 
 
-def test_point_multiply(curve, r):
+def test_go_point_multiply(curve, r):
     p = r.randpoint(curve)
     k = r.randrange(0, 2 ** 256)
     kp = k * p
     res = POINT(int2bn(0), int2bn(0))
-    lib.point_multiply(curve.ptr, int2bn(k), to_POINT(p), res)
+    lib.go_point_multiply(curve.ptr, int2bn(k), to_POINT(p), res)
     res = from_POINT(res)
     assert res == (kp.x(), kp.y())
 
 
-def test_point_add(curve, r):
+def test_go_point_add(curve, r):
     p1 = r.randpoint(curve)
     p2 = r.randpoint(curve)
     # print '-' * 80
     q = p1 + p2
     q1 = to_POINT(p1)
     q2 = to_POINT(p2)
-    lib.point_add(curve.ptr, q1, q2)
+    lib.go_point_add(curve.ptr, q1, q2)
     q_ = from_POINT(q2)
     assert q_ == (q.x(), q.y())
 
 
-def test_point_double(curve, r):
+def test_go_point_double(curve, r):
     p = r.randpoint(curve)
     q = p.double()
     q_ = to_POINT(p)
-    lib.point_double(curve.ptr, q_)
+    lib.go_point_double(curve.ptr, q_)
     q_ = from_POINT(q_)
     assert q_ == (q.x(), q.y())
 
@@ -419,7 +419,7 @@ def test_sign(curve, r):
     digest = r.randbytes(32)
     sig = r.randbytes(64)
 
-    lib.ecdsa_sign_digest(curve.ptr, priv, digest, sig, c.c_void_p(0), c.c_void_p(0))
+    lib.go_ecdsa_sign_digest(curve.ptr, priv, digest, sig, c.c_void_p(0), c.c_void_p(0))
 
     exp = bytes2num(priv)
     sk = ecdsa.SigningKey.from_secret_exponent(exp, curve, hashfunc=hashlib.sha256)
@@ -435,11 +435,11 @@ def test_sign(curve, r):
 
 def test_validate_pubkey(curve, r):
     p = r.randpoint(curve)
-    assert lib.ecdsa_validate_pubkey(curve.ptr, to_POINT(p))
+    assert lib.go_ecdsa_validate_pubkey(curve.ptr, to_POINT(p))
 
 
 def test_validate_pubkey_direct(point):
-    assert lib.ecdsa_validate_pubkey(point.ptr, to_POINT(point.p))
+    assert lib.go_ecdsa_validate_pubkey(point.ptr, to_POINT(point.p))
 
 
 def test_curve25519(r):

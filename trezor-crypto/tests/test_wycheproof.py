@@ -640,7 +640,7 @@ def test_ecdsa(curve_name, public_key, hasher, message, signature, result):
     message = unhexlify(message)
 
     computed_result = (
-        lib.ecdsa_verify(curve, hasher, public_key, signature, message, len(message))
+        lib.go_ecdsa_verify(curve, hasher, public_key, signature, message, len(message))
         == 0
     )
     assert result == computed_result
@@ -673,7 +673,7 @@ def test_ecdh(curve_name, public_key, private_key, shared, result):
     shared = unhexlify(shared)
 
     computed_shared = bytes([0] * 2 * 32)
-    lib.ecdh_multiply(curve, private_key, public_key, computed_shared)
+    lib.go_ecdh_multiply(curve, private_key, public_key, computed_shared)
     computed_shared = computed_shared[1:33]
     computed_result = shared == computed_shared
     assert result == computed_result

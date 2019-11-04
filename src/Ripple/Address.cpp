@@ -42,7 +42,7 @@ Address::Address(const std::vector<uint8_t>& data) {
 Address::Address(const PublicKey& publicKey) {
     /// see type prefix: https://developers.ripple.com/base58-encodings.html
     bytes[0] = 0x00;
-    ecdsa_get_pubkeyhash(publicKey.bytes.data(), HASHER_SHA2_RIPEMD, bytes.data() + 1);
+    go_ecdsa_get_pubkeyhash(publicKey.bytes.data(), HASHER_SHA2_RIPEMD, bytes.data() + 1);
 }
 
 std::string Address::string() const {

@@ -203,8 +203,8 @@ Data ParamsBuilder::fromMultiPubkey(uint8_t m, const std::vector<Data>& pubKeys)
     auto sortedPubKeys = pubKeys;
     std::sort(sortedPubKeys.begin(), sortedPubKeys.end(), [](Data& o1, Data& o2) -> int {
         curve_point p1, p2;
-        ecdsa_read_pubkey(&nist256p1, o1.data(), &p1);
-        ecdsa_read_pubkey(&nist256p1, o2.data(), &p2);
+        go_ecdsa_read_pubkey(&nist256p1, o1.data(), &p1);
+        go_ecdsa_read_pubkey(&nist256p1, o2.data(), &p2);
         auto result = bn_is_less(&p1.x, &p2.x);
         if (result != 0) {
             return result;

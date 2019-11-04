@@ -70,21 +70,21 @@ void openssl_check(unsigned int iterations, int nid, const ecdsa_curve *curve)
 		BN_bn2bin(K, priv_key + bn_off);
 
 		// use our ECDSA signer to sign the message with the key
-		if (ecdsa_sign(curve, HASHER_SHA2, priv_key, msg, msg_len, sig, NULL, NULL) != 0) {
+		if (go_ecdsa_sign(curve, HASHER_SHA2, priv_key, msg, msg_len, sig, NULL, NULL) != 0) {
 			printf("trezor-crypto signing failed\n");
 			return;
 		}
 
 		// generate public key from private key
-		ecdsa_get_public_key33(curve, priv_key, pub_key33);
-		ecdsa_get_public_key65(curve, priv_key, pub_key65);
+		go_ecdsa_get_public_key33(curve, priv_key, pub_key33);
+		go_ecdsa_get_public_key65(curve, priv_key, pub_key65);
 
 		// use our ECDSA verifier to verify the message signature
-		if (ecdsa_verify(curve, HASHER_SHA2, pub_key65, sig, msg, msg_len) != 0) {
+		if (go_ecdsa_verify(curve, HASHER_SHA2, pub_key65, sig, msg, msg_len) != 0) {
 			printf("trezor-crypto verification failed (pub_key_len = 65)\n");
 			return;
 		}
-		if (ecdsa_verify(curve, HASHER_SHA2, pub_key33, sig, msg, msg_len) != 0) {
+		if (go_ecdsa_verify(curve, HASHER_SHA2, pub_key33, sig, msg, msg_len) != 0) {
 			printf("trezor-crypto verification failed (pub_key_len = 33)\n");
 			return;
 		}

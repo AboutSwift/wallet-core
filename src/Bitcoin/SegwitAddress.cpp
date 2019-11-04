@@ -54,7 +54,7 @@ SegwitAddress::SegwitAddress(const PublicKey& publicKey, int witver, std::string
         throw std::invalid_argument("SegwitAddressneeds a compressed SECP256k1 public key.");
     }
     witnessProgram.resize(20);
-    ecdsa_get_pubkeyhash(publicKey.compressed().bytes.data(), HASHER_SHA2_RIPEMD,
+    go_ecdsa_get_pubkeyhash(publicKey.compressed().bytes.data(), HASHER_SHA2_RIPEMD,
                          witnessProgram.data());
 }
 

@@ -54,7 +54,7 @@ Address::Address(const PublicKey& publicKey, uint8_t prefix) {
         throw std::invalid_argument("Groestlcoin::Address needs a compressed SECP256k1 public key.");
     }
     bytes[0] = prefix;
-    ecdsa_get_pubkeyhash(publicKey.bytes.data(), HASHER_SHA2_RIPEMD, bytes.data() + 1);
+    go_ecdsa_get_pubkeyhash(publicKey.bytes.data(), HASHER_SHA2_RIPEMD, bytes.data() + 1);
 }
 
 std::string Address::string() const {
